@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"go-ecommerce-api/models" // Import model User
+	"go-ecommerce-api/models"
 )
 
 var DB *gorm.DB

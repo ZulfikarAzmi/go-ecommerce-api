@@ -9,26 +9,25 @@ import (
 )
 
 func main() {
-	// Inisialisasi Fiber
-	app := fiber.New()
-
 	// Koneksi ke database
 	database.Connect()
 
-	// Mendapatkan port dari environment atau menggunakan default 3000
+	app := fiber.New()
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
 	}
 
-	// Route untuk mendapatkan semua user
-	app.Get("/users", handlers.GetUsers)
+	// Endpoints
+	app.Get("/users", handlers.GetAllUsers)
+	app.Get("/users/:id", handlers.GetUserByID)
+	app.Post("/users", handlers.AddUser)
+	
 
-	// Route default
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("E-Commerce API is running!")
 	})
 
-	// Menjalankan server
 	log.Fatal(app.Listen(":" + port))
 }
