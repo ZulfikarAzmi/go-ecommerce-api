@@ -2,32 +2,50 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"go-ecommerce-api/database"
 	"go-ecommerce-api/handlers"
+	"go-ecommerce-api/middleware"
 	"log"
-	"os"
 )
 
 func main() {
-	// Koneksi ke database
+	// Inisialisasi koneksi database
 	database.Connect()
 
 	app := fiber.New()
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-	}
+	// Middleware CORS dengan konfigurasi yang aman
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000", // Sesuaikan dengan origin frontend Anda
+		AllowMethods:     "GET,POST,PUT,DELETE",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
-	// Endpoints
-	app.Get("/users", handlers.GetAllUsers)
-	app.Get("/users/:id", handlers.GetUserByID)
-	app.Post("/users", handlers.AddUser)
-	
+	// Grup untuk API
+	api := app.Group("/api")
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("E-Commerce API is running!")
-	})
+	// Auth routes
+	auth := api.Group("/auth")
+	auth.Post("/register", handlers.AddUser)
+	auth.Post("/login", handlers.Login)
+	auth.Post("/logout", handlers.Logout)
 
-	log.Fatal(app.Listen(":" + port))
+	// Protected routes
+	api.Get("/welcome", middleware.AuthMiddleware, handlers.Welcome)
+
+	// User routes
+	users := api.Group("/users")
+	users.Get("/", handlers.GetAllUsers)
+	users.Get("/:id", handlers.GetUserByID)
+
+	// Toko routes
+	toko := api.Group("/toko")
+	toko.Get("/", handlers.GetAllToko)        // Route untuk mendapatkan semua toko
+	toko.Get("/:id", handlers.GetTokoByID)    // Route untuk mendapatkan toko berdasarkan ID
+
+	// Start server
+	log.Fatal(app.Listen(":8080"))
 }
