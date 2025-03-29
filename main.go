@@ -46,6 +46,15 @@ func main() {
 	toko.Get("/", handlers.GetAllToko)        // Route untuk mendapatkan semua toko
 	toko.Get("/:id", handlers.GetTokoByID)    // Route untuk mendapatkan toko berdasarkan ID
 
+	// Alamat routes (protected, perlu login)
+	alamat := api.Group("/alamat")
+	alamat.Use(middleware.AuthMiddleware) // Middleware untuk memastikan user sudah login
+	alamat.Post("/", handlers.AddAlamat)
+	alamat.Get("/", handlers.GetUserAlamat)
+	alamat.Get("/:id", handlers.GetAlamatByID)
+	alamat.Put("/:id", handlers.UpdateAlamat)
+	alamat.Delete("/:id", handlers.DeleteAlamat)
+
 	// Start server
 	log.Fatal(app.Listen(":8080"))
 }

@@ -36,7 +36,7 @@ func Connect() {
 	fmt.Println("Koneksi Database Berhasil!")
 
 	// Auto Migrate models
-	err = DB.AutoMigrate(&models.User{}, &models.Toko{})
+	err = DB.AutoMigrate(&models.User{}, &models.Toko{}, &models.Alamat{})
 	if err != nil {
 		log.Fatal("Gagal melakukan migrasi database: ", err)
 	}
