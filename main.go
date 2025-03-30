@@ -55,6 +55,16 @@ func main() {
 	alamat.Put("/:id", handlers.UpdateAlamat)
 	alamat.Delete("/:id", handlers.DeleteAlamat)
 
+	// Category routes
+	category := api.Group("/categories")
+	category.Get("/", handlers.GetAllCategories)                                    // Dapat diakses semua user
+	category.Post("/", middleware.AuthMiddleware, middleware.AdminMiddleware, handlers.AddCategory)  // Hanya admin
+
+	// Product routes
+	product := api.Group("/products")
+	product.Get("/", handlers.GetAllProducts)                           // Dapat diakses semua user
+	product.Post("/", middleware.AuthMiddleware, handlers.AddProduct)   // Hanya pemilik toko
+
 	// Start server
 	log.Fatal(app.Listen(":8080"))
 }
