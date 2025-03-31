@@ -33,6 +33,13 @@ func main() {
 	auth.Post("/login", handlers.Login)
 	auth.Post("/logout", handlers.Logout)
 
+	// Middleware untuk protected routes
+	protected := api.Group("", middleware.AuthMiddleware)
+
+	// Route untuk transaksi
+	transactions := protected.Group("/transactions")
+	transactions.Post("/", handlers.CreateTransaction)
+
 	// Protected routes
 	api.Get("/welcome", middleware.AuthMiddleware, handlers.Welcome)
 
@@ -62,8 +69,9 @@ func main() {
 
 	// Product routes
 	product := api.Group("/products")
-	product.Get("/", handlers.GetAllProducts)                           // Dapat diakses semua user
-	product.Post("/", middleware.AuthMiddleware, handlers.AddProduct)   // Hanya pemilik toko
+	product.Get("/", handlers.GetAllProducts)
+	product.Post("/", middleware.AuthMiddleware, handlers.AddProduct)
+	product.Post("/:id/upload", middleware.AuthMiddleware, handlers.UploadFotoProduk)
 
 	// Start server
 	log.Fatal(app.Listen(":8080"))
